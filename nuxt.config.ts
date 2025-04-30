@@ -6,6 +6,7 @@ export default defineNuxtConfig({
     '@nuxt/eslint',
     '@nuxt/ui-pro',
     'nuxt-zod-i18n',
+    '@nuxtjs/i18n'
   ],
   devtools: { enabled: true },
   css: ['~/assets/css/main.css'],
