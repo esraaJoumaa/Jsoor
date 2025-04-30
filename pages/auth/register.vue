@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import * as z from "zod";
 
+
+const items = ref(['Backlog', 'Todo', 'In Progress', 'Done'])
+
 const schema = z.object({
   name: z.string().min(2, "name must be at least 2 characters"),
 
@@ -76,10 +79,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
           </UFormField>
 
           <UFormField label="Type" name="type">
-            <USelect v-model="state.type" placeholder="Select Type">
-              <option value="refugee">Displaced</option>
-              <option value="company">Company</option>
-            </USelect>
+            <USelect v-model="state.type" :items="items" class="w-48" />
           </UFormField>
 
           <UFormField label="Password" name="password">
@@ -100,6 +100,9 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
 
           <UButton type="submit" color="primary">Register</UButton>
         </UForm>
+      </template>
+      <template #left>
+        <img src="../../public/loginImage.jpg"
       </template>
     </UPage>
   </div>
