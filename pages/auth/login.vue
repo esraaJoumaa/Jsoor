@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-import { useLoginAdmin } from '~/queries/auth/admin'
-
 const userForm = ref({
   email: '',
   password: '',
@@ -9,7 +7,6 @@ const userForm = ref({
 const isLoading = ref(false)
 const toast = useToast()
 const form = ref()
-const router = useRouter()
 
 const formIsValid = computed(() => {
   if (!form.value) {
@@ -18,35 +15,24 @@ const formIsValid = computed(() => {
 
   return form.value.errors && Object.keys(form.value.errors).length > 0
 })
-
-
-const forgetPasswordForm = ref({
-  email: '',
-})
-
 const login = async () => {
-  isLoading.value = true
-  const { status } = await useLoginAdmin(userForm.value)
-  if (status.value == 'success') {
-    toast.add({ description: `Login Successful`, color: 'success' })
-    await router.push('/')
-  }
-  else{
-    toast.add({ description: 'Email or Password is un Courrect', color: 'error' })
-  }
-  isLoading.value = false
+  toast.add({ description: `Login Successful`, color: 'success' })
 }
-
-
 </script>
 
 <template>
   <div class="flex h-screen w-full">
+    <div class="flex-1 bg-primary flex items-center justify-center relative overflow-hidden">
+      <img
+        class="w-96"
+        src="../../public/loginImage.jpg"
+      >
+    </div>
     <div class="flex-1 bg-white flex items-center justify-center">
       <div class="w-full max-w-md px-6 space-y-6">
         <div class="text-center">
           <p class="text-lg md:text-3xl font-bold text-black mt-16">
-            Super Admin Login
+            Login Page
           </p>
           <p class="text-[#868686] pt-3">
             enter your Email and Password
@@ -85,22 +71,20 @@ const login = async () => {
           </UFormField>
           <UButton
             type="submit"
-            :disabled="formIsValid"
-            :loading="isLoading"
             block
             class="w-full sm:mt-3 disabled:bg-primary text-white bg-primary hover:bg-blue-300 rounded-full h-12 py-2.5 font-bold text-center"
+            @click="navigateTo('/')"
           >
             <span class="font-bold text-lg">Sign in</span>
           </UButton>
-          
+          <p class="text-sm py-5">
+            You Do Not Have Account ?<NuxtLink
+              class="text-primary underline mx-2"
+              to="/auth/register"
+            >Create Account</NuxtLink>
+          </p>
         </UForm>
       </div>
-    </div>
-    <div class="flex-1 bg-primary flex items-center justify-center relative overflow-hidden">
-      <img
-        class="w-96"
-        src="../../public/loginImage.jpg"
-      >
     </div>
   </div>
 </template>
