@@ -37,23 +37,26 @@ function navigateToServices() {
 </script>
 
 <template>
-  <div class="flex flex-col items-center justify-center min-h-screen bg-gray-100">
-    <h1 class="text-2xl font-bold mb-4">Refugee Information</h1>
-
-    <UPage>
-      <template #right>
+        <div class="flex h-screen w-full">
+          <div class="flex-1 bg-white flex items-center justify-center">
+            <div class="w-full max-w-md px-6 space-y-6">
+              <div class="text-center">
+               <p class="text-2xl font-bold mb-4">Refugee Information</p>
+            </div>
         <UForm
           :schema="schema"
           :state="state"
           class="space-y-4"
           @submit="onSubmit"
         >
-          
+        <div class="grid grid-cols-2 gap-4">
+          <div class="">
           <UFormField label="Full Name" name="fullName">
             <UInput v-model="state.fullName" placeholder="Full Name" />
           </UFormField>
+          </div>
 
-        
+          <div class="">
           <UFormField label="Birth Date" name="birthDate">
             <UInput
               v-model="state.birthDate"
@@ -61,8 +64,9 @@ function navigateToServices() {
               placeholder="Birth Date"
             />
           </UFormField>
-
+          </div>
           
+          <div class="">
           <UFormField label="Number of Family Members" name="familyMembers">
             <UInput
               v-model="state.familyMembers"
@@ -70,8 +74,9 @@ function navigateToServices() {
               placeholder="Family Members"
             />
           </UFormField>
-
+        </div>
         
+        <div class="">
           <UFormField label="Need" name="need">
             <UTextarea
               v-model="state.need"
@@ -79,16 +84,24 @@ function navigateToServices() {
               rows="4"
             />
           </UFormField>
-
+        </div>
         
+        
+        <div class="">
           <UButton type="submit" color="primary">Submit</UButton>
+        </div>
+        </div>
         </UForm>
-      </template>
-      <template #left>
-
-      </template>
-    </UPage>
+      </div>
+    </div>
+    <div class="flex-1 bg-primary flex items-center justify-center relative overflow-hidden">
+      <img
+        class="w-96"
+        src="../../public/imageRegister.png"
+      >
+    </div>
   </div>
+     
 </template>
 
 <style>
