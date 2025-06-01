@@ -1,47 +1,19 @@
 <script setup lang="ts">
-import * as z from 'zod'
-
-const schema = z.object({
-  name: z.string().min(2, 'name must be at least 2 characters'),
-
-  email: z.string().email('Invalid email'),
-
-  phone: z
-    .string()
-    .regex(/^\d{10,}$/, 'Phone number must be at least 10 digits'),
-
-  password: z.string().min(8, 'Password must be at least 8 characters'),
-
-  password_confirmation: z
-    .string()
-    .min(8, 'Password confirmation must be at least 8 characters')
-    .refine((val, ctx) => {
-      if (val !== ctx.parent.password) {
-        throw new Error('Password confirmation must match the password')
-      }
-
-return true
-    }),
-})
-
-type Schema = z.output<typeof schema>
-
-const state = reactive<Partial<Schema>>({
-  name: undefined,
-  email: undefined,
-  phone: undefined,
-  password: undefined,
-  password_confirmation: undefined,
+const registerForm = ref({
+  name: '',
+  email: '',
+  phone: '',
+  password: '',
+  password_confirmation: '',
 })
 
 const toast = useToast()
-async function onSubmit(event: FormSubmitEvent<Schema>) {
+const register = async () => {
   toast.add({
-    title: 'تم التسجيل بنجاح',
-    description: 'تم إنشاء الحساب بنجاح.',
+    title: 'sucsses',
+    description: 'create account successfully',
     color: 'success',
   })
-  console.log(event.data)
 }
 </script>
 
@@ -58,10 +30,11 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
           </p>
         </div>
         <UForm
-          :schema="schema"
-          :state="state"
+          ref="form"
           class="space-y-4"
-          @submit="onSubmit"
+          :state="registerForm"
+          action="#"
+          @submit="register"
         >
           <div class="grid grid-cols-2 gap-4">
             <div class="">
@@ -70,7 +43,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
                 name="name"
               >
                 <UInput
-                  v-model="state.name"
+                  v-model="registerForm.name"
                   placeholder="Full Name"
                 />
               </UFormField>
@@ -81,7 +54,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
                 name="email"
               >
                 <UInput
-                  v-model="state.email"
+                  v-model="registerForm.email"
                   placeholder="Email Address"
                 />
               </UFormField>
@@ -92,19 +65,19 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
                 name="phone"
               >
                 <UInput
-                  v-model="state.phone"
+                  v-model="registerForm.phone"
                   placeholder="Phone Number"
                 />
               </UFormField>
             </div>
-          
+
             <div class="">
               <UFormField
                 label="Password"
                 name="password"
               >
                 <UInput
-                  v-model="state.password"
+                  v-model="registerForm.password"
                   type="password"
                   placeholder="Password"
                 />
@@ -116,7 +89,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
                 name="password_confirmation"
               >
                 <UInput
-                  v-model="state.password_confirmation"
+                  v-model="registerForm.password_confirmation"
                   type="password"
                   placeholder="Confirm Password"
                 />
@@ -126,7 +99,10 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
               <UFormField
                 label="Type"
               >
-              <UCheckbox label="As Company" class="pt-2" />
+                <UCheckbox
+                  label="As Company"
+                  class="pt-2"
+                />
               </UFormField>
             </div>
             <div class="">
