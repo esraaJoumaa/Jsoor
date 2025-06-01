@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { useLoginAdmin } from '~/queries/auth/admin'
+import { useLoginAdmin } from '@@/queries/auth/admin'
 
 const userForm = ref({
   email: '',
@@ -19,7 +19,6 @@ const formIsValid = computed(() => {
   return form.value.errors && Object.keys(form.value.errors).length > 0
 })
 
-
 const forgetPasswordForm = ref({
   email: '',
 })
@@ -31,13 +30,11 @@ const login = async () => {
     toast.add({ description: `Login Successful`, color: 'success' })
     await router.push('/')
   }
-  else{
+  else {
     toast.add({ description: 'Email or Password is un Courrect', color: 'error' })
   }
   isLoading.value = false
 }
-
-
 </script>
 
 <template>
@@ -92,7 +89,6 @@ const login = async () => {
           >
             <span class="font-bold text-lg">Sign in</span>
           </UButton>
-          
         </UForm>
       </div>
     </div>
