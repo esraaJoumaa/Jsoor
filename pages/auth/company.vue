@@ -9,6 +9,9 @@ const companyForm = ref({
   description: '',
 })
 
+const items = ref(['Shelters', 'Employment Opportunities', 'Psychological Support'])
+const value = ref('Shelters')
+
 const isLoading = ref(false)
 const toast = useToast()
 const form = ref()
@@ -47,12 +50,37 @@ const loginCompany = async () => {
           <div class="grid grid-cols-2 gap-4">
             <div class="">
               <UFormField
+                label="companyName"
+                name="companyName"
+              >
+                <UInput
+                  v-model="companyForm.companyName"
+                  placeholder="companyName"
+                />
+              </UFormField>
+            </div>
+
+            <div class="">
+              <UFormField
                 label="mapLocation"
                 name="mapLocation"
               >
                 <UInput
                   v-model="companyForm.mapLocation"
                   placeholder="Map Location"
+                />
+              </UFormField>
+            </div>
+
+            <div class="">
+              <UFormField
+                label="phone"
+                name="phone"
+              >
+                <UInput
+                  v-model="companyForm.phone"
+                  type="text"
+                  placeholder="phone"
                 />
               </UFormField>
             </div>
@@ -68,52 +96,37 @@ const loginCompany = async () => {
                 />
               </UFormField>
             </div>
-
-            <div class="">
-              <UFormField
-                label="companyName"
-                name="companyName"
-              >
-                <UInput
-                  v-model="companyForm.companyName"
-                  placeholder="companyName"
-                />
-              </UFormField>
+            <div class="text-left mx-auto">
+              <label class="text-sm">Service Name</label>
+              <USelect
+                v-model="value"
+                :items="items"
+                class="w-48"
+              />
             </div>
-
-            <div class="">
+            <div class="text-center mx-auto">
               <UFormField
-                label="phone"
-                name="phone"
-              >
-                <UInput
-                  v-model="companyForm.phone"
-                  type="date"
-                  placeholder="phone"
-                />
-              </UFormField>
-            </div>
-
-            <div class="">
-              <UFormField
+                class="text-center mx-auto"
                 label="description"
                 name="description"
               >
                 <UTextarea
                   v-model="companyForm.description"
                   placeholder="description"
-                  aria-rowcount="4"
+                  class="w-full"
+                  :rows="1"
                 />
               </UFormField>
             </div>
-            <div class="">
-              <UButton
-                type="submit"
-                color="primary"
-              >
-                Submit
-              </UButton>
-            </div>
+          </div>
+          <div class="text-center mx-auto">
+            <UButton
+              block
+              type="submit"
+              color="primary"
+            >
+              Submit
+            </UButton>
           </div>
         </UForm>
       </div>
