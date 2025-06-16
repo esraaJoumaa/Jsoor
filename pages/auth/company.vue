@@ -29,10 +29,15 @@ const loginCompany = async () => {
   }
   isLoading.value = false
 }
+const selecetLocation=ref<Location | null>(null)
+const handelLocationSelectes=(location:Location)=>{
+  selecetLocation.value=location
+}
 </script>
 
 <template>
   <div class="flex h-screen w-full">
+    <MpaLocation @location-selceted="handelLocationSelectes"/>
     <div class="flex-1 bg-white flex items-center justify-center">
       <div class="w-full max-w-md px-6 space-y-6">
         <div class="text-center">
