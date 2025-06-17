@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useloginCompany } from '@@/queries/auth/company'
+import type { Loction } from '@@/models/location'
 
 const companyForm = ref({
   mapLocation: '',
@@ -29,15 +30,29 @@ const loginCompany = async () => {
   }
   isLoading.value = false
 }
-const selecetLocation=ref<Location | null>(null)
-const handelLocationSelectes=(location:Location)=>{
+const isMapModelOpen=ref(false)
+const selecetLocation=ref<Loction | null>(null)
+
+const isSending = ref(false)
+const handelLocationSelectes=(location:Loction)=>{
   selecetLocation.value=location
+  selectedLocationText
+}
+const selectedLocationText = computed(() => {
+  if(selecetLocation.value){
+    return `lat ${selecetLocation.value.lat.toFixed(4)} lng ${selecetLocation.value.lng.toFixed(4)}`
+  }
+})
+const sendLaction =async ()=>{
+  if(!selecetLocation.value){
+    toast.add({ description: `Palese Select Location First`, color: 'error' })
+  }
+  isSending.value=true
 }
 </script>
 
 <template>
   <div class="flex h-screen w-full">
-    <MpaLocation @location-selceted="handelLocationSelectes"/>
     <div class="flex-1 bg-white flex items-center justify-center">
       <div class="w-full max-w-md px-6 space-y-6">
         <div class="text-center">
@@ -71,8 +86,11 @@ const handelLocationSelectes=(location:Location)=>{
                 name="mapLocation"
               >
                 <UInput
-                  v-model="companyForm.mapLocation"
-                  placeholder="Map Location"
+                  v-model="selectedLocationText"
+                  icon="i-heroicons-map-pin"
+                  aria-readonly="true"
+                  @click="isMapModelOpen=true"
+                  :placeholder="selectedLocationText"
                 />
               </UFormField>
             </div>
@@ -142,5 +160,43 @@ const handelLocationSelectes=(location:Location)=>{
         src="../../public/imageRegister.png"
       >
     </div>
-  </div>
+  </div>      
+    <UModal v-model="isMapModelOpen" v-if=isMapModelOpen class="model">
+      <UCard >
+        <template #header>
+          <div class="flex items-center justify-between">
+            <h3 class="text-base font-semibold leading-6 text-gray-900">
+              Palese Select Your Location On Map
+            </h3>
+            <UButton
+              color="info"
+              variant="ghost"
+              icon="i-heroicons-x-mark-20-solid"
+              class="my-1"
+              @click="isMapModelOpen = false"
+            />
+          </div>
+        </template>
+        <template #default>
+          <MpaLocation @location-selceted="handelLocationSelectes" :initialLocation="selecetLocation"/>
+        </template>
+        <template #footer>
+          <div class="flex justify-end">
+            <UButton color="primary" variant="solid" @click="isMapModelOpen=false">
+              Done
+            </UButton>
+          </div>
+        </template>
+      </UCard>
+    </UModal>
 </template>
+<style scoped lang="scss">
+.model {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+</style>
