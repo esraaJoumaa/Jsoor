@@ -44,7 +44,7 @@
           <h3 class="text-2xl font-semibold text-gray-800 mb-2">For Displaced Individuals:</h3>
           <p class="mb-6 leading-relaxed">
             Displaced individuals can register on our platform Once your application is reviewed and approved
-            you'll gain full access to all available advertisements
+            you'll gain full access to all available advertisements.
             This allows you to browse and benefit from a wide range of services, including job postings, shelter options, and psychological support initiatives tailored to your needs.
           </p>
 
