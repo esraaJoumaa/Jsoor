@@ -19,9 +19,7 @@ const formIsValid = computed(() => {
   return form.value.errors && Object.keys(form.value.errors).length > 0
 })
 
-const forgetPasswordForm = ref({
-  email: '',
-})
+
 
 const login = async () => {
   isLoading.value = true
