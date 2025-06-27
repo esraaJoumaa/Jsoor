@@ -1,16 +1,19 @@
 <script setup lang="ts">
-import { useloginCompany } from '@@/queries/auth/company'
+import { useRegisterCompany } from '@@/queries/auth/company'
 import type { Loction } from '@@/models/location'
+import { useGlobalStore } from '~/stors/global';
+
+const globalStore = useGlobalStore();
 
 const companyForm = ref({
-  mapLocation: '',
-  socialLink: '',
-  companyName: '',
+  map_location: '',
+  social_link: '',
+  name: '',
   phone: '',
   description: '',
+  user_id:`${globalStore.user_id}`
 })
 
-const items = ref(['Shelters', 'Employment Opportunities', 'Psychological Support'])
 const value = ref('Shelters')
 
 const isLoading = ref(false)
@@ -19,36 +22,35 @@ const form = ref()
 const router = useRouter()
 
 const loginCompany = async () => {
+   companyForm.value.map_location = selectedLocationText.value;
   isLoading.value = true
-  const { status } = await useloginCompany(companyForm.value)
+  const { status } = await useRegisterCompany(companyForm.value)
   if (status.value == 'success') {
+
     toast.add({ description: `loginCompany Successful`, color: 'success' })
-    await router.push('/')
+    // await router.push('/')
   }
   else {
     toast.add({ description: 'Email or Password is un Courrect', color: 'error' })
   }
   isLoading.value = false
 }
-const isMapModelOpen=ref(false)
-const selecetLocation=ref<Loction | null>(null)
 
-const isSending = ref(false)
-const handelLocationSelectes=(location:Loction)=>{
-  selecetLocation.value=location
-  selectedLocationText
+const isMapModelOpen = ref(false)
+const selecetLocation = ref<Loction | null>(null)
+const sendLocationToApi = ref('')
+
+const handelLocationSelectes = (location: { lat: number; lng: number }) => {
+  selecetLocation.value = location
+  sendLocationToApi.value = `${location.lat}|${location.lng}`
 }
+
 const selectedLocationText = computed(() => {
-  if(selecetLocation.value){
-    return `lat ${selecetLocation.value.lat.toFixed(4)} lng ${selecetLocation.value.lng.toFixed(4)}`
+  if (selecetLocation.value) {
+    return `lat: ${selecetLocation.value.lat.toFixed(4)}, lng: ${selecetLocation.value.lng.toFixed(4)}`
   }
+  return 'Choose your location using map'
 })
-const sendLaction =async ()=>{
-  if(!selecetLocation.value){
-    toast.add({ description: `Palese Select Location First`, color: 'error' })
-  }
-  isSending.value=true
-}
 </script>
 
 <template>
@@ -70,27 +72,26 @@ const sendLaction =async ()=>{
           <div class="grid grid-cols-2 gap-4">
             <div class="">
               <UFormField
-                label="companyName"
-                name="companyName"
+                label="name"
+                name="name"
               >
                 <UInput
-                  v-model="companyForm.companyName"
-                  placeholder="companyName"
+                  v-model="companyForm.name"
+                  placeholder="name"
                 />
               </UFormField>
             </div>
 
             <div class="">
               <UFormField
-                label="mapLocation"
+                label="Map Location"
                 name="mapLocation"
               >
                 <UInput
-                  v-model="selectedLocationText"
-                  icon="i-heroicons-map-pin"
+                  v-model="companyForm.map_location"
                   aria-readonly="true"
+                  :value="selectedLocationText"
                   @click="isMapModelOpen=true"
-                  :placeholder="selectedLocationText"
                 />
               </UFormField>
             </div>
@@ -110,23 +111,16 @@ const sendLaction =async ()=>{
 
             <div class="">
               <UFormField
-                label="socialLink"
-                name="socialLink"
+                label="social_link"
+                name="social_link"
               >
                 <UInput
-                  v-model="companyForm.socialLink"
-                  placeholder="socialLink"
+                  v-model="companyForm.social_link"
+                  placeholder="social_link"
                 />
               </UFormField>
             </div>
-            <div class="text-left mx-auto">
-              <label class="text-sm">Service Name</label>
-              <USelect
-                v-model="value"
-                :items="items"
-                class="w-48"
-              />
-            </div>
+          </div>
             <div class="text-center mx-auto">
               <UFormField
                 class="text-center mx-auto"
@@ -141,7 +135,6 @@ const sendLaction =async ()=>{
                 />
               </UFormField>
             </div>
-          </div>
           <div class="text-center mx-auto">
             <UButton
               block
@@ -160,43 +153,28 @@ const sendLaction =async ()=>{
         src="../../public/imageRegister.png"
       >
     </div>
-  </div>      
-    <UModal v-model="isMapModelOpen" v-if=isMapModelOpen class="model">
-      <UCard >
-        <template #header>
-          <div class="flex items-center justify-between">
-            <h3 class="text-base font-semibold leading-6 text-gray-900">
-              Palese Select Your Location On Map
-            </h3>
-            <UButton
-              color="info"
-              variant="ghost"
-              icon="i-heroicons-x-mark-20-solid"
-              class="my-1"
-              @click="isMapModelOpen = false"
-            />
-          </div>
-        </template>
-        <template #default>
-          <MpaLocation @location-selceted="handelLocationSelectes" :initialLocation="selecetLocation"/>
-        </template>
-        <template #footer>
-          <div class="flex justify-end">
-            <UButton color="primary" variant="solid" @click="isMapModelOpen=false">
-              Done
-            </UButton>
-          </div>
-        </template>
-      </UCard>
-    </UModal>
+  </div>
+  <UModal
+    v-model:open="isMapModelOpen"
+    title="Please Select Your Location On Map"
+    :ui="{footer:'justify-end'}"
+  >   
+      <template #body>
+        <MpaLocation
+          :initial-location="selecetLocation"
+          @location-selected="handelLocationSelectes"
+        />
+      </template>
+      <template #footer>
+        <div class="flex justify-end">
+          <UButton
+            color="primary"
+            variant="solid"
+            @click="isMapModelOpen=false;"
+          >
+            Done
+          </UButton>
+        </div>
+      </template>
+  </UModal>
 </template>
-<style scoped lang="scss">
-.model {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background-color: white;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-}
-</style>
