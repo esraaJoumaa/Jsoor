@@ -1,23 +1,19 @@
 <script setup lang="ts">
-import * as z from 'zod'
+import { useGlobalStore } from '~/stors/global'
+import { useSendNeed } from '@@/queries/auth/refugee'
+import type { user } from '~/models/loginResponse'
 
-const schema = z.object({
-  fullName: z.string().min(2, 'Full name must be at least 2 characters'),
-  birthDate: z.string().refine(
-    (val) => !isNaN(Date.parse(val)),
-    'Invalid date format',
-  ),
-  familyMembers: z.number().int().positive('Must be a positive integer'),
-  need: z.string().min(5, 'Need description must be at least 5 characters'),
-})
+const globalStore = useGlobalStore();
 
-type Schema = z.output<typeof schema>
+const refugeeForm = ref({
+  name: '',
+  phone: '',
+  need: '',
+  number_of_family_member:'',
+  date_of_birth:'',
+  status:'pending',
+  user_id:`${globalStore.user_id}`
 
-const state = reactive<Partial<Schema>>({
-  fullName: undefined,
-  birthDate: undefined,
-  familyMembers: undefined,
-  need: undefined,
 })
 
 const toast = useToast()
@@ -26,9 +22,18 @@ const router = useRouter()
 
 const registerRefugee = async () => {
   isLoading.value = true
-    toast.add({ description: `loginCompany Successful`, color: 'success' })
-    await router.push('/')
+  const { data, status } = await useSendNeed(refugeeForm.value);
+
+  if (status.value === 'success') {
+    const registrationData = data.value as user;
+    router.push('/')
+  }
+ else {
+  toast.add({ description: 'Email or Password is un Courrect', color: 'error' });
+  }
 }
+
+  isLoading.value = false;
 </script>
 
 <template>
@@ -41,31 +46,42 @@ const registerRefugee = async () => {
           </p>
         </div>
         <UForm
-          :schema="schema"
-          :state="state"
           class="space-y-4"
+          ref="form"
+          action="#"
+          :state="refugeeForm"
           @submit="registerRefugee"
         >
           <div class="grid grid-cols-2 gap-4">
             <div class="">
               <UFormField
-                label="Full Name"
-                name="fullName"
+                label="Name"
+                name="name"
               >
                 <UInput
-                  v-model="state.fullName"
-                  placeholder="Full Name"
+                  v-model="refugeeForm.name"
+                  placeholder="Name"
                 />
               </UFormField>
             </div>
-
+            <div class="">
+              <UFormField
+                label="Phone"
+                name="pheon"
+              >
+                <UInput
+                  v-model="refugeeForm.phone"
+                  placeholder="Phone"
+                />
+              </UFormField>
+            </div>
             <div class="">
               <UFormField
                 label="Birth Date"
                 name="birthDate"
               >
                 <UInput
-                  v-model="state.birthDate"
+                  v-model="refugeeForm.date_of_birth"
                   type="date"
                   placeholder="Birth Date"
                 />
@@ -78,34 +94,37 @@ const registerRefugee = async () => {
                 name="familyMembers"
               >
                 <UInput
-                  v-model="state.familyMembers"
+                  v-model="refugeeForm.number_of_family_member"
                   type="number"
                   placeholder="Family Members"
                 />
               </UFormField>
             </div>
 
-            <div class="">
-              <UFormField
-                label="Need"
-                name="need"
-              >
-                <UTextarea
-                  v-model="state.need"
-                  placeholder="Describe your needs here"
-                  aria-rowspan="4"
-                />
-              </UFormField>
-            </div>
+          </div>
+          <div class="w-full">
+            <UFormField
+              label="Need"
+              name="need"
+              class="w-full"
+            >
+              <UTextarea
+                v-model="refugeeForm.need"
+                class="w-full"
+                placeholder="Describe your needs here"
+                aria-rowspan="4"
+              />
+            </UFormField>
+          </div>
 
-            <div class="">
-              <UButton
-                type="submit"
-                color="primary"
-              >
-                Submit
-              </UButton>
-            </div>
+          <div class="text-center">
+            <UButton
+              type="submit"
+              color="primary"
+              block
+            >
+              Submit
+            </UButton>
           </div>
         </UForm>
       </div>

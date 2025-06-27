@@ -21,7 +21,7 @@ export function useAPI<T>(
     })
 }
 export const api = $fetch.create({
-    baseURL: 'https://becd-194-59-6-108.ngrok-free.app/api',
+    baseURL: 'http://127.0.0.1:8000/api',
     onRequest({ options }) {
         options.headers.set('Content-Type', 'application/json')
     },

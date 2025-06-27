@@ -1,4 +1,9 @@
 <script lang="ts" setup>
+import type { user } from '~/models/loginResponse'
+import { useLoginAdmin } from '~/queries/auth/admin'
+import { useLoginRefugee } from '~/queries/auth/refugee'
+import { useGlobalStore } from '~/stors/global'
+
 const userForm = ref({
   email: '',
   password: '',
@@ -7,6 +12,7 @@ const userForm = ref({
 const isLoading = ref(false)
 const toast = useToast()
 const form = ref()
+const router = useRouter()
 
 const formIsValid = computed(() => {
   if (!form.value) {
@@ -16,19 +22,27 @@ const formIsValid = computed(() => {
   return form.value.errors && Object.keys(form.value.errors).length > 0
 })
 const login = async () => {
-  toast.add({ description: `Login Successful`, color: 'success' })
+   isLoading.value = true
+  const { data, status } = await useLoginRefugee(userForm.value)
+  if (status.value == 'success') {
+    const globalStore =useGlobalStore()
+    console.log(`data ${data.value}`)
+    const loginData =data.value as user
+    globalStore.token= loginData.token
+    globalStore.role=loginData.user.type
+    toast.add({ description: `Login Successful`, color: 'success' })
+    await router.push('/')
+  }
+  else {
+    toast.add({ description: 'Email or Password is un Courrect', color: 'error' })
+  }
+  isLoading.value = false
 }
 </script>
 
 <template>
-  <div class="flex h-screen w-full">
-    <div class="flex-1 bg-primary flex items-center justify-center relative overflow-hidden">
-      <img
-        class="w-96"
-        src="../../public/loginImage.jpg"
-      >
-    </div>
-    <div class="flex-1 bg-white flex items-center justify-center">
+  <div class="flex h-screen w-full  bg-cover loginPage bg-center">
+    <div class="flex-1  flex items-center justify-center">
       <div class="w-full max-w-md px-6 space-y-6">
         <div class="text-center">
           <p class="text-lg md:text-3xl font-bold text-black mt-16">
@@ -77,7 +91,7 @@ const login = async () => {
           >
             <span class="font-bold text-lg">Sign in</span>
           </UButton>
-          <p class="text-sm py-5">
+          <p class="text-sm text-center py-5">
             You Do Not Have Account ?<NuxtLink
               class="text-primary underline mx-2"
               to="/auth/register"
@@ -89,6 +103,8 @@ const login = async () => {
   </div>
 </template>
 
-<style scoped>
-
+<style scoped lang="scss">
+.loginPage{
+  background-image: url('../../public/loginImage.jpg') !important;
+}
 </style>

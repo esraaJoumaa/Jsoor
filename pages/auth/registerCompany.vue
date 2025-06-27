@@ -11,7 +11,7 @@ const registerForm = ref({
   phone: '',
   password: '',
   password_confirmation: '',
-  type: 'refugee',
+  type: 'company',
 })
 
 const isLoading = ref(false)
@@ -33,7 +33,7 @@ const register = async () => {
     description: 'create account successfully',
     color: 'success',
   })
-   await router.push('/auth/refugee');
+   await router.push('/auth/company');
 }
 else {
     toast.add({ description: 'Email or Password is un Courrect', color: 'error' });
@@ -51,7 +51,7 @@ else {
       <div class="w-full max-w-md px-6 space-y-6">
         <div class="text-center">
           <p class="text-lg md:text-3xl font-bold text-black mt-16">
-            Create Account
+            Create Company Account
           </p>
           <p class="text-[#868686] pt-3">
             Palese Enter your Information
