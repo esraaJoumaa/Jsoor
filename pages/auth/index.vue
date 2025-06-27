@@ -1,5 +1,7 @@
 <script lang="ts" setup>
 import { useLoginAdmin } from '@@/queries/auth/admin'
+import type { user } from '~/models/loginResponse'
+import { useGlobalStore } from '~/stors/global'
 
 const userForm = ref({
   email: '',
@@ -19,14 +21,17 @@ const formIsValid = computed(() => {
   return form.value.errors && Object.keys(form.value.errors).length > 0
 })
 
-
-
 const login = async () => {
   isLoading.value = true
-  const { status } = await useLoginAdmin(userForm.value)
+  const { data, status } = await useLoginAdmin(userForm.value)
   if (status.value == 'success') {
+    const globalStore =useGlobalStore()
+    console.log(`data ${data.value}`)
+    const loginData =data.value as user
+    globalStore.token= loginData.token
+    globalStore.role=loginData.user.type
     toast.add({ description: `Login Successful`, color: 'success' })
-    await router.push('/')
+    await router.push('/dashboard')
   }
   else {
     toast.add({ description: 'Email or Password is un Courrect', color: 'error' })
@@ -36,7 +41,7 @@ const login = async () => {
 </script>
 
 <template>
-  <div class="flex h-screen w-full">
+  <div class="flex h-screen w-full bg-cover loginPage bg-center">
     <div class="flex-1 bg-white flex items-center justify-center">
       <div class="w-full max-w-md px-6 space-y-6">
         <div class="text-center">
@@ -85,20 +90,16 @@ const login = async () => {
             block
             class="w-full sm:mt-3 disabled:bg-primary text-white bg-primary hover:bg-blue-300 rounded-full h-12 py-2.5 font-bold text-center"
           >
-            <span class="font-bold text-lg">Sign in</span>
+            <span :disabled="formIsValid" class="font-bold text-lg">Sign in</span>
           </UButton>
         </UForm>
       </div>
     </div>
-    <div class="flex-1 bg-primary flex items-center justify-center relative overflow-hidden">
-      <img
-        class="w-96"
-        src="../../public/loginImage.jpg"
-      >
-    </div>
   </div>
 </template>
 
-<style scoped>
-
+<style scoped lang="scss">
+.loginPage{
+  background-image: url('../../public/loginImage.jpg') !important;
+}
 </style>
