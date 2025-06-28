@@ -28,7 +28,7 @@ const loginCompany = async () => {
   if (status.value == 'success') {
 
     toast.add({ description: `loginCompany Successful`, color: 'success' })
-    // await router.push('/')
+    await router.push('/auth/addads')
   }
   else {
     toast.add({ description: 'Email or Password is un Courrect', color: 'error' })
@@ -51,6 +51,7 @@ const selectedLocationText = computed(() => {
   }
   return 'Choose your location using map'
 })
+
 </script>
 
 <template>

@@ -1,33 +1,57 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useCompanyAprroveAdvertisments } from '~/queries/auth/company'
 
 const route = useRoute()
 const router = useRouter()
 
+const { data: advertismentDataRequests, refresh: refreshAdminRequestsData, pending } = useCompanyAprroveAdvertisments()
+const advertismentRequests = computed(() => advertismentDataRequests.value || [])
+
 const allAds = ref([])
 const activeCategory = ref('all')
 
+// A helper function to map Arabic service_type to English category and display names
+const mapServiceTypeToCategory = (serviceType) => {
+  switch (serviceType) {
+    case 'دعم نفسي':
+      return { category: 'support', category_display: 'Psychological Support' };
+    case 'فرص عمل':
+      return { category: 'jobs', category_display: 'Job Opportunity' };
+    case 'منازل':
+      return { category: 'shelter', category_display: 'Shelter' };
+    default:
+      return { category: 'other', category_display: serviceType }; // Fallback
+  }
+}
+
 const fetchAds = async () => {
-  allAds.value = [
-    { id: 1, title: 'Job Opportunity: Web Developer', description: 'Company looking for a web developer with 2 years of experience, knowledge of Vue.js and Nuxt.js preferred. Flexible and stimulating work environment.', category: 'jobs', category_display: 'Job Opportunity', location: 'Istanbul', contact: 'jobs@example.com' },
-    { id: 2, title: 'Temporary Shelter for Families', description: 'Fully furnished 3-room apartment in a safe and quiet area, close to public facilities.', category: 'shelter', category_display: 'Shelter', location: 'Berlin', contact: '+123456789' },
-    { id: 3, title: 'Free Psychological Support Sessions', description: 'Group and individual sessions with psychologists to help displaced persons adapt and overcome trauma.', category: 'support', category_display: 'Psychological Support', contact: 'support@example.com' },
-    { id: 4, title: 'Job Opportunity: Maintenance Technician', description: 'General maintenance technician required for a service institution, preferably with experience in electricity and plumbing.', category: 'jobs', category_display: 'Job Opportunity', location: 'Lebanon', contact: 'tech@example.com' },
-    { id: 5, title: 'Shelter for University Students', description: 'Shared room for students near the university, includes internet, water, and electricity bills.', category: 'shelter', category_display: 'Shelter', location: 'Gaziantep', contact: 'students@example.com' },
-    { id: 6, title: 'Remote Psychological Support', description: 'Online counseling services for individuals facing psychological difficulties, in complete confidentiality.', category: 'support', category_display: 'Psychological Support', contact: 'online@example.com' },
-    { id: 7, title: 'Job Opportunity: Arabic Language Teacher', description: 'Required Arabic language teacher for displaced children, part-time.', category: 'jobs', category_display: 'Job Opportunity', location: 'Marseille', contact: 'arabic_teacher@example.com' },
-    { id: 8, title: 'Emergency Shelter for Small Family', description: 'Temporary studio apartment available for a small family in urgent need of shelter.', category: 'shelter', category_display: 'Shelter', location: 'Munich', contact: 'emergency_shelter@example.com' },
-    { id: 9, title: 'Stress Relief Workshops', description: 'Interactive workshops to help individuals manage stress and anxiety in difficult circumstances.', category: 'support', category_display: 'Psychological Support', contact: 'stress_relief@example.com' },
-  ].map(ad => ({ ...ad, shadowStyle: {} }))
+  const mappedAds = [];
+  advertismentRequests.value.forEach(serviceCategory => {
+    const { category, category_display } = mapServiceTypeToCategory(serviceCategory.service_type);
+
+    serviceCategory.ads.forEach(ad => {
+      mappedAds.push({
+        id: ad.id,
+        title: ad.title,
+        description: ad.description,
+        category: category,
+        category_display: category_display,
+        location: ad.location,
+        contact: ad.meet_link || null, // Assuming meet_link can be used as contact if no direct contact field
+        shadowStyle: {}
+      });
+    });
+  });
+  allAds.value = mappedAds;
 }
 
 const filteredAds = computed(() => {
   if (activeCategory.value === 'all') {
     return allAds.value
   }
-
-return allAds.value.filter(ad => ad.category === activeCategory.value)
+  return allAds.value.filter(ad => ad.category === activeCategory.value)
 })
 
 const setCategory = (category) => {
@@ -36,8 +60,10 @@ const setCategory = (category) => {
   router.push({ query: newQuery })
 }
 
-onMounted(() => {
-  fetchAds()
+onMounted(async () => {
+  await refreshAdminRequestsData() // Fetch data when the component mounts
+  fetchAds() // Populate allAds with the fetched data
+
   if (route.query.category) {
     activeCategory.value = route.query.category
   }
@@ -50,6 +76,11 @@ watch(() => route.query.category, (newCategory) => {
     activeCategory.value = 'all'
   }
 })
+
+// Watch for changes in advertismentDataRequests and update allAds
+watch(advertismentDataRequests, () => {
+  fetchAds()
+}, { deep: true }) // Use deep watch for nested changes
 
 const handleMouseMove = (event) => {
   const card = event.currentTarget
@@ -152,16 +183,10 @@ const handleMouseLeave = (event) => {
             >
               <strong>Location:</strong> {{ ad.location }}
             </p>
-            <p
-              v-if="ad.contact"
-              class="text-gray-600 text-sm mb-4"
-            >
-              <strong>Contact:</strong> {{ ad.contact }}
-            </p>
-            <NuxtLink
-              :to="`/ads/${ad.id}`"
-              class="inline-block px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors duration-300"
-            >View Details</NuxtLink>
+            <<NuxtLink :to="ad.contact"  v-if="ad.contact"
+              class="text-gray-600 text-sm mb-4">
+              {{ ad.contact }}
+            </NuxtLink>
             <div
               class="card-shadow absolute top-0 left-0 w-full h-full pointer-events-none"
               :style="ad.shadowStyle"

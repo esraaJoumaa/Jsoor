@@ -1,5 +1,6 @@
 import { refreshNuxtData, useFetch } from 'nuxt/app'
 import type { Ref } from 'vue'
+import { useGlobalStore } from '~/stors/global'
 
 export function useAPI<T>(
     options: {
@@ -24,6 +25,7 @@ export const api = $fetch.create({
     baseURL: 'http://127.0.0.1:8000/api',
     onRequest({ options }) {
         options.headers.set('Content-Type', 'application/json')
+        options.headers.set('Authorization', `Bearer ${useGlobalStore().token}`)
     },
 },
 )
